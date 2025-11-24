@@ -40,7 +40,7 @@ subnet_config = [
     address_prefixes = [
       "172.31.16.128/26"
     ]
-    name = "DNSResolverInboundSubnet"
+    name = "gstt-sde-uks-prod-conn-dns-inbound-snet01"
     delegation = [{
       name = "Microsoft.Network.dnsResolvers"
       service_delegation = {
@@ -61,7 +61,7 @@ subnet_config = [
     address_prefixes = [
       "172.31.16.192/26"
     ]
-    name = "DNSResolverOutboundSubnet"
+    name = "gstt-sde-uks-prod-conn-dns-outbound-snet01"
     delegation = [{
       name = "Microsoft.Network.dnsResolvers"
       service_delegation = {
@@ -82,7 +82,7 @@ subnet_config = [
     address_prefixes = [
       "172.31.17.0/28"
     ]
-    name = "VPNClientAddressPoolSubnet"
+    name = "gstt-sde-uks-prod-conn-vpn-p2s-pool-snet01"
   },
 
   # ============================================
@@ -98,7 +98,7 @@ subnet_config = [
     address_prefixes = [
       "172.31.20.48/28"
     ]
-    name                   = "DLZDevSubnet"
+    name                   = "gstt-sde-uks-prod-dev-storage-snet01"
     allow_private_endpoint = true
     service_endpoints = [
       "Microsoft.Storage",
@@ -116,7 +116,7 @@ subnet_config = [
     address_prefixes = [
       "172.31.20.32/28"
     ]
-    name                   = "DLZProdSubnet"
+    name                   = "gstt-sde-uks-prod-data-storage-snet01"
     allow_private_endpoint = true
     service_endpoints = [
       "Microsoft.Storage",
@@ -134,7 +134,7 @@ subnet_config = [
     address_prefixes = [
       "172.31.20.16/28"
     ]
-    name                   = "SnowflakeDevSubnet"
+    name                   = "gstt-sde-uks-prod-dev-snowflake-snet01"
     allow_private_endpoint = true
     service_endpoints = [
       "Microsoft.Storage"
@@ -150,7 +150,7 @@ subnet_config = [
     address_prefixes = [
       "172.31.20.0/28"
     ]
-    name                   = "SnowflakeProdSubnet"
+    name                   = "gstt-sde-uks-prod-data-snowflake-snet01"
     allow_private_endpoint = true
     service_endpoints = [
       "Microsoft.Storage"
@@ -166,7 +166,7 @@ subnet_config = [
     address_prefixes = [
       "172.31.20.64/28"
     ]
-    name                   = "ADFProdSubnet"
+    name                   = "gstt-sde-uks-prod-data-adf-snet01"
     allow_private_endpoint = true
     service_endpoints = [
       "Microsoft.Storage",
@@ -184,7 +184,7 @@ subnet_config = [
     address_prefixes = [
       "172.31.20.80/28"
     ]
-    name                   = "ADFDevSubnet"
+    name                   = "gstt-sde-uks-prod-dev-adf-snet01"
     allow_private_endpoint = true
     service_endpoints = [
       "Microsoft.Storage",
