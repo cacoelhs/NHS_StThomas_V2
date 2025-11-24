@@ -25,9 +25,13 @@ variable "resource_group_name" {
 variable "tags" {
   description = "Tags to apply to all resources"
   type        = map(string)
-  default = {
-    Project     = "NHS St Thomas V2"
-    ManagedBy   = "Terraform"
-    Environment = "Development"
+  default     = {}
+}
+
+locals {
+  default_tags = {
+    Project   = "NHS St Thomas V2"
+    ManagedBy = "Terraform"
   }
+  all_tags = merge(local.default_tags, { Environment = var.environment }, var.tags)
 }

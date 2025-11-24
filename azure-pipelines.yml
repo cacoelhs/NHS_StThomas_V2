@@ -24,6 +24,14 @@ variables:
     value: '1.5.7'
   - name: workingDirectory
     value: '$(System.DefaultWorkingDirectory)/terraform'
+  - name: backendResourceGroup
+    value: 'rg-terraform-state'
+  - name: backendStorageAccount
+    value: 'sttfstate'  # Update with your storage account name including unique identifier
+  - name: backendContainerName
+    value: 'tfstate'
+  - name: backendKey
+    value: 'nhs-stthomas.terraform.tfstate'
 
 stages:
   - stage: Validate
@@ -85,10 +93,10 @@ stages:
               command: 'init'
               workingDirectory: $(workingDirectory)
               backendServiceArm: 'Azure-Service-Connection'
-              backendAzureRmResourceGroupName: 'rg-terraform-state'
-              backendAzureRmStorageAccountName: 'sttfstate'
-              backendAzureRmContainerName: 'tfstate'
-              backendAzureRmKey: 'nhs-stthomas.terraform.tfstate'
+              backendAzureRmResourceGroupName: $(backendResourceGroup)
+              backendAzureRmStorageAccountName: $(backendStorageAccount)
+              backendAzureRmContainerName: $(backendContainerName)
+              backendAzureRmKey: $(backendKey)
 
           - task: TerraformTaskV4@4
             displayName: 'Terraform Plan'
@@ -136,10 +144,10 @@ stages:
                     command: 'init'
                     workingDirectory: $(workingDirectory)
                     backendServiceArm: 'Azure-Service-Connection'
-                    backendAzureRmResourceGroupName: 'rg-terraform-state'
-                    backendAzureRmStorageAccountName: 'sttfstate'
-                    backendAzureRmContainerName: 'tfstate'
-                    backendAzureRmKey: 'nhs-stthomas.terraform.tfstate'
+                    backendAzureRmResourceGroupName: $(backendResourceGroup)
+                    backendAzureRmStorageAccountName: $(backendStorageAccount)
+                    backendAzureRmContainerName: $(backendContainerName)
+                    backendAzureRmKey: $(backendKey)
 
                 - task: TerraformTaskV4@4
                   displayName: 'Terraform Apply'

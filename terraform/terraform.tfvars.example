@@ -6,9 +6,9 @@ location            = "UK South"
 project_name        = "nhs-stthomas"
 resource_group_name = ""
 
+# Additional tags to merge with defaults
+# Default tags (Project, ManagedBy, Environment) are added automatically
 tags = {
-  Project     = "NHS St Thomas V2"
-  ManagedBy   = "Terraform"
-  Environment = "Development"
   Owner       = "NHS St Thomas"
+  CostCenter  = "Healthcare"
 }
