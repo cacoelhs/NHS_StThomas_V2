@@ -1,22 +1,22 @@
 # ============================================
-# Subscription Variables
+# Azure Authentication Variables
 # ============================================
 
-variable "connectivity_subscription_id" {
-  description = "Azure Subscription ID for SDE Connectivity Subscription"
+variable "azure_tenant_id" {
+  description = "Azure Tenant ID"
   type        = string
   sensitive   = true
 }
 
-variable "data_lz_subscription_id" {
-  description = "Azure Subscription ID for SDE Data Landing Zone Subscription"
+variable "azure_client_id" {
+  description = "Azure Client ID for OIDC authentication"
   type        = string
   sensitive   = true
 }
 
-variable "management_subscription_id" {
-  description = "Azure Subscription ID for SDE Management Subscription"
-  type        = string
+variable "azure_subscription_ids" {
+  description = "Map of Azure Subscription IDs by environment"
+  type        = map(string)
   sensitive   = true
 }
 

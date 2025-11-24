@@ -93,8 +93,9 @@ steps:
     TF_VAR_state_storage_container_name: $(state-storage-container-name-dev)
     TF_VAR_environment: ${{ parameters.ENVIRONMENT }}
     TF_VAR_azure_tenant_id: $(ARM_TENANT_ID)
-    TF_VAR_azure_client_id: $(clientId)
+    TF_VAR_azure_client_id: $(ARM_CLIENT_ID)
     TF_VAR_admin_password: $(admin_password)
+    TF_VAR_azure_subscription_ids: '{"connectivity-sub":"$(connectivity_subscription_id)","development-sub":"$(data_lz_subscription_id)","management-sub":"$(management_subscription_id)"}'
     AUTO_APPROVE_OPERATION: "-auto-approve"
     ARM_USE_OIDC: "true"
     ARM_CLIENT_ID: $(ARM_CLIENT_ID)

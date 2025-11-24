@@ -3,6 +3,10 @@
 # ============================================
 
 locals {
+  # Build subscription IDs map from individual variables if needed
+  # This allows the pipeline to pass individual subscription IDs
+  subscription_ids = var.azure_subscription_ids
+
   # Filter VNets by provider alias and is_applicable flag
   vnet_by_provider = {
     for provider in ["connectivity-sub", "data-lz-sub", "management-sub"] :

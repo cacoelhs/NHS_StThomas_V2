@@ -3,22 +3,13 @@
 # ============================================
 
 terraform {
-  required_version = ">= 1.5.0"
-
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0"
+      version = "=4.4.0"
     }
   }
-
-  # Backend configuration for state management
-  # Update with your Azure DevOps state storage details
   backend "azurerm" {
-    resource_group_name  = "gstt-sde-terraform-state-rg"
-    storage_account_name = "gsttsdeterraformstate"
-    container_name       = "tfstate"
-    key                  = "sde-network.terraform.tfstate"
   }
 }
 
@@ -28,36 +19,36 @@ terraform {
 
 # SDE Connectivity Subscription Provider
 provider "azurerm" {
-  alias           = "connectivity-sub"
-  subscription_id = var.connectivity_subscription_id
-  
   features {
-    resource_group {
-      prevent_deletion_if_contains_resources = true
-    }
   }
+  alias                      = "connectivity-sub"
+  subscription_id            = var.azure_subscription_ids["connectivity-sub"]
+  skip_provider_registration = true
+  use_oidc                   = true
+  tenant_id                  = var.azure_tenant_id
+  client_id                  = var.azure_client_id
 }
 
 # SDE Data Landing Zone Subscription Provider
 provider "azurerm" {
-  alias           = "data-lz-sub"
-  subscription_id = var.data_lz_subscription_id
-  
   features {
-    resource_group {
-      prevent_deletion_if_contains_resources = true
-    }
   }
+  alias                      = "data-lz-sub"
+  subscription_id            = var.azure_subscription_ids["development-sub"]
+  skip_provider_registration = true
+  use_oidc                   = true
+  tenant_id                  = var.azure_tenant_id
+  client_id                  = var.azure_client_id
 }
 
 # SDE Management Subscription Provider
 provider "azurerm" {
-  alias           = "management-sub"
-  subscription_id = var.management_subscription_id
-  
   features {
-    resource_group {
-      prevent_deletion_if_contains_resources = true
-    }
   }
+  alias                      = "management-sub"
+  subscription_id            = var.azure_subscription_ids["management-sub"]
+  skip_provider_registration = true
+  use_oidc                   = true
+  tenant_id                  = var.azure_tenant_id
+  client_id                  = var.azure_client_id
 }

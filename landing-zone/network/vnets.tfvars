@@ -1,12 +1,21 @@
 # ============================================
-# Subscription IDs
-# IMPORTANT: Update these with your actual subscription IDs
-# OR set via environment variables or Azure DevOps pipeline variables
+# Azure Authentication and Subscription IDs
+# These values are set via TF_VAR environment variables in the pipeline
+# from the PipelineVars-DEV variable group
 # ============================================
 
-connectivity_subscription_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # Replace with SDE Connectivity Subscription ID
-data_lz_subscription_id      = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # Replace with SDE Data Landing Zone Subscription ID
-management_subscription_id   = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # Replace with SDE Management Subscription ID
+# NOTE: These are passed as environment variables:
+# TF_VAR_azure_tenant_id
+# TF_VAR_azure_client_id
+# TF_VAR_azure_subscription_ids (as JSON string or separate variables)
+
+# Subscription IDs map - you can either set this directly or via environment
+# If using separate env vars, create the map in locals.tf
+azure_subscription_ids = {
+  "connectivity-sub" = "TBD"  # Set via TF_VAR_connectivity_subscription_id
+  "development-sub"  = "TBD"  # Set via TF_VAR_data_lz_subscription_id  
+  "management-sub"   = "TBD"  # Set via TF_VAR_management_subscription_id
+}
 
 # ============================================
 # Virtual Networks Configuration
