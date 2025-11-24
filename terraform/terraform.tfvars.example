@@ -1,0 +1,14 @@
+# Example Terraform variables file
+# Copy this file to terraform.tfvars and update with your values
+
+environment         = "dev"
+location            = "UK South"
+project_name        = "nhs-stthomas"
+resource_group_name = ""
+
+# Additional tags to merge with defaults
+# Default tags (Project, ManagedBy, Environment) are added automatically
+tags = {
+  Owner       = "NHS St Thomas"
+  CostCenter  = "Healthcare"
+}
