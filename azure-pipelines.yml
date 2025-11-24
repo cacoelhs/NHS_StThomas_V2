@@ -52,10 +52,10 @@ stages:
               command: 'init'
               workingDirectory: $(workingDirectory)
               backendServiceArm: 'Azure-Service-Connection'
-              backendAzureRmResourceGroupName: 'rg-terraform-state'
-              backendAzureRmStorageAccountName: 'sttfstate'
-              backendAzureRmContainerName: 'tfstate'
-              backendAzureRmKey: 'nhs-stthomas.terraform.tfstate'
+              backendAzureRmResourceGroupName: $(backendResourceGroup)
+              backendAzureRmStorageAccountName: $(backendStorageAccount)
+              backendAzureRmContainerName: $(backendContainerName)
+              backendAzureRmKey: $(backendKey)
 
           - task: TerraformTaskV4@4
             displayName: 'Terraform Validate'
