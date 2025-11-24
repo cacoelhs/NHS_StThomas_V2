@@ -1,0 +1,185 @@
+# Azure DevOps Pipeline for Terraform Deployment
+# This pipeline deploys the SDE network infrastructure across multiple subscriptions
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - environments/prod/**
+      - modules/network/**
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - name: tfVersion
+    value: '1.5.0'
+  - name: workingDirectory
+    value: '$(System.DefaultWorkingDirectory)/environments/prod'
+  # Define subscription IDs as pipeline variables or variable groups
+  # Recommended: Use Azure DevOps Variable Groups with secured variables
+  - group: 'terraform-state-vars'     # Contains Terraform backend config
+  - group: 'sde-subscription-ids'     # Contains subscription IDs
+
+stages:
+  - stage: Validate
+    displayName: 'Validate Terraform'
+    jobs:
+      - job: TerraformValidate
+        displayName: 'Terraform Init & Validate'
+        steps:
+          - task: TerraformInstaller@0
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: '$(tfVersion)'
+
+          - task: AzureCLI@2
+            displayName: 'Terraform Init'
+            inputs:
+              azureSubscription: 'SDE-Connectivity-ServiceConnection'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                cd $(workingDirectory)
+                terraform init \
+                  -backend-config="resource_group_name=$(TF_STATE_RG)" \
+                  -backend-config="storage_account_name=$(TF_STATE_STORAGE)" \
+                  -backend-config="container_name=$(TF_STATE_CONTAINER)" \
+                  -backend-config="key=$(TF_STATE_KEY)"
+
+          - task: AzureCLI@2
+            displayName: 'Terraform Validate'
+            inputs:
+              azureSubscription: 'SDE-Connectivity-ServiceConnection'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                cd $(workingDirectory)
+                terraform validate
+
+          - task: AzureCLI@2
+            displayName: 'Terraform Format Check'
+            inputs:
+              azureSubscription: 'SDE-Connectivity-ServiceConnection'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                cd $(workingDirectory)
+                terraform fmt -check -recursive
+
+  - stage: Plan
+    displayName: 'Terraform Plan'
+    dependsOn: Validate
+    jobs:
+      - job: TerraformPlan
+        displayName: 'Generate Terraform Plan'
+        steps:
+          - task: TerraformInstaller@0
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: '$(tfVersion)'
+
+          - task: AzureCLI@2
+            displayName: 'Terraform Init'
+            inputs:
+              azureSubscription: 'SDE-Connectivity-ServiceConnection'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                cd $(workingDirectory)
+                terraform init \
+                  -backend-config="resource_group_name=$(TF_STATE_RG)" \
+                  -backend-config="storage_account_name=$(TF_STATE_STORAGE)" \
+                  -backend-config="container_name=$(TF_STATE_CONTAINER)" \
+                  -backend-config="key=$(TF_STATE_KEY)"
+
+          - task: AzureCLI@2
+            displayName: 'Terraform Plan'
+            inputs:
+              azureSubscription: 'SDE-Connectivity-ServiceConnection'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                cd $(workingDirectory)
+                terraform plan \
+                  -var-file="vnets.tfvars" \
+                  -var-file="subnets.tfvars" \
+                  -var="connectivity_subscription_id=$(CONNECTIVITY_SUB_ID)" \
+                  -var="data_lz_subscription_id=$(DATA_LZ_SUB_ID)" \
+                  -var="management_subscription_id=$(MANAGEMENT_SUB_ID)" \
+                  -out=tfplan
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Terraform Plan'
+            inputs:
+              targetPath: '$(workingDirectory)/tfplan'
+              artifact: 'terraform-plan'
+              publishLocation: 'pipeline'
+
+  - stage: Apply
+    displayName: 'Terraform Apply'
+    dependsOn: Plan
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: TerraformApply
+        displayName: 'Apply Terraform Changes'
+        environment: 'Production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: TerraformInstaller@0
+                  displayName: 'Install Terraform'
+                  inputs:
+                    terraformVersion: '$(tfVersion)'
+
+                - task: DownloadPipelineArtifact@2
+                  displayName: 'Download Terraform Plan'
+                  inputs:
+                    buildType: 'current'
+                    artifactName: 'terraform-plan'
+                    targetPath: '$(workingDirectory)'
+
+                - task: AzureCLI@2
+                  displayName: 'Terraform Init'
+                  inputs:
+                    azureSubscription: 'SDE-Connectivity-ServiceConnection'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      cd $(workingDirectory)
+                      terraform init \
+                        -backend-config="resource_group_name=$(TF_STATE_RG)" \
+                        -backend-config="storage_account_name=$(TF_STATE_STORAGE)" \
+                        -backend-config="container_name=$(TF_STATE_CONTAINER)" \
+                        -backend-config="key=$(TF_STATE_KEY)"
+
+                - task: AzureCLI@2
+                  displayName: 'Terraform Apply'
+                  inputs:
+                    azureSubscription: 'SDE-Connectivity-ServiceConnection'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      cd $(workingDirectory)
+                      terraform apply -auto-approve tfplan
+
+                - task: AzureCLI@2
+                  displayName: 'Terraform Output'
+                  inputs:
+                    azureSubscription: 'SDE-Connectivity-ServiceConnection'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      cd $(workingDirectory)
+                      terraform output -json > terraform-outputs.json
+                      cat terraform-outputs.json
+
+                - task: PublishPipelineArtifact@1
+                  displayName: 'Publish Terraform Outputs'
+                  inputs:
+                    targetPath: '$(workingDirectory)/terraform-outputs.json'
+                    artifact: 'terraform-outputs'
+                    publishLocation: 'pipeline'
