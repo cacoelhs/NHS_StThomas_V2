@@ -1,0 +1,41 @@
+# Makefile for GSTT SDE Terraform Landing Zone
+# This Makefile provides targets for Terraform operations
+
+.PHONY: help validate plan apply destroy clean
+
+# Default target
+.DEFAULT_GOAL := help
+
+# Colors for output
+BLUE := \033[0;34m
+GREEN := \033[0;32m
+RED := \033[0;31m
+NC := \033[0m # No Color
+
+help: ## Show this help message
+	@echo "$(BLUE)GSTT SDE Terraform Landing Zone$(NC)"
+	@echo "$(GREEN)Available targets:$(NC)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(BLUE)%-15s$(NC) %s\n", $$1, $$2}'
+
+validate: ## Validate Terraform configuration
+	@echo "$(GREEN)Validating Terraform...$(NC)"
+	@cd $(PROJECT_DIR) && terraform validate
+
+plan: ## Run Terraform plan
+	@echo "$(GREEN)Running Terraform plan...$(NC)"
+	@cd $(PROJECT_DIR) && terraform plan -var-file="vnets.tfvars" -var-file="subnets.tfvars" -out=tfplan
+
+apply: ## Apply Terraform changes
+	@echo "$(GREEN)Applying Terraform changes...$(NC)"
+	@cd $(PROJECT_DIR) && terraform apply tfplan
+
+destroy: ## Destroy Terraform resources
+	@echo "$(RED)Destroying Terraform resources...$(NC)"
+	@cd $(PROJECT_DIR) && terraform destroy -var-file="vnets.tfvars" -var-file="subnets.tfvars"
+
+clean: ## Clean Terraform files
+	@echo "$(GREEN)Cleaning Terraform files...$(NC)"
+	@cd $(PROJECT_DIR) && rm -rf .terraform .terraform.lock.hcl tfplan tfplan.json
+
+# Project-specific variables
+PROJECT_DIR ?= ../network
