@@ -1,0 +1,8 @@
+# Example backend configuration for Azure Storage
+# Copy this file to backend.hcl and update with your values
+# Usage: terraform init -backend-config="backend.hcl"
+
+resource_group_name  = "rg-terraform-state"
+storage_account_name = "sttfstate<uniqueid>"
+container_name       = "tfstate"
+key                  = "nhs-stthomas.terraform.tfstate"

@@ -1,0 +1,14 @@
+# Example Terraform variables file
+# Copy this file to terraform.tfvars and update with your values
+
+environment         = "dev"
+location            = "UK South"
+project_name        = "nhs-stthomas"
+resource_group_name = ""
+
+tags = {
+  Project     = "NHS St Thomas V2"
+  ManagedBy   = "Terraform"
+  Environment = "Development"
+  Owner       = "NHS St Thomas"
+}
